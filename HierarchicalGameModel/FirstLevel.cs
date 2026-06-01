@@ -169,7 +169,7 @@ namespace ScheduleOptimizationSystem.HierarchicalGameModel
         private void PullSolution(List<List<int>> A_Matrix)
         {
 
-            FirstLevelSolution solution = GetFlSolutionFromMatrix(A_Matrix);
+            FirstLevelSolution solution = new(_config, A_Matrix);
 
             _logger.Print("/////////////");
             _logger.Print("m:", solution.M);
@@ -194,29 +194,6 @@ namespace ScheduleOptimizationSystem.HierarchicalGameModel
 
                 }
             }
-        }
-
-        private FirstLevelSolution GetFlSolutionFromMatrix(List<List<int>> A_Matrix)
-        {
-            int[] batchesCount = new int[_config.JobTypesCount];
-            int maxBatchesCount = 0;
-            for (int jobType = 0; jobType < _config.JobTypesCount; jobType++)
-            {
-                int jobTypeBatchesCount = A_Matrix[jobType].Count;
-                maxBatchesCount = Math.Max(maxBatchesCount, jobTypeBatchesCount);
-                batchesCount[jobType] = jobTypeBatchesCount;
-            }
-
-            int[,] _A_Matrix = new int[_config.JobTypesCount, maxBatchesCount];
-            for (int jobType = 0; jobType < _config.JobTypesCount; jobType++)
-            {
-                for (int batch = 0; batch < batchesCount[jobType]; batch++)
-                {
-                    _A_Matrix[jobType, batch] = A_Matrix[jobType][batch];
-                }
-            }
-
-            return new(batchesCount, _A_Matrix);
         }
 
         private int Makespan(FirstLevelSolution flSolution, SecondLevelSolution slSolution)

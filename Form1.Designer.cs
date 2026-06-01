@@ -323,7 +323,6 @@
             cb_LoggingOn.TabIndex = 16;
             cb_LoggingOn.Text = "Логи";
             cb_LoggingOn.UseVisualStyleBackColor = true;
-            cb_LoggingOn.Visible = false;
             // 
             // Form1
             // 

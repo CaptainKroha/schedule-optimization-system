@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../ScheduleOptimizationSystemTest/ScheduleOptimizationSystemTest.csproj" Id="05a50d52-d239-41c9-9a37-9ec3102291d3" />
   <Project Path="ScheduleOptimizationSystem.csproj" />
 </Solution>
