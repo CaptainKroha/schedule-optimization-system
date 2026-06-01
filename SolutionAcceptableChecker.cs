@@ -16,9 +16,9 @@ namespace ScheduleOptimizationSystem
             int firstCellIndex = 0, lastCellIndex = config.BufferSize - 1;
             int lastExtractedOrder = 0;
 
-            int orderCount = config.Orders.Sum();
+            int ordersCount = config.Orders.Sum();
 
-            while (lastExtractedOrder != orderCount)
+            while (lastExtractedOrder != ordersCount)
             {
                 int extractedOrdersCount = GetNumberOfExtractedOrdersInPeriod(outOrdersSequence, jobsBufferingTimes[firstCellIndex], jobsBufferingTimes[lastCellIndex]);
                 if (extractedOrdersCount == 0) return false;
