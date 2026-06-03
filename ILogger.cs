@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ScheduleOptimizationSystem
 {
-    internal interface ILogger
+    public interface ILogger
     {
         void Print(string message);
         void Print(string message, int[] array);
