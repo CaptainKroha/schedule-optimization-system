@@ -5,19 +5,19 @@ using static ScheduleOptimizationSystem.HierarchicalGameModel.SecondLevel;
 
 namespace ScheduleOptimizationSystem
 {
-    internal class StartProcessingTimesCalculator(ScheduleConfig config)
+    public class StartProcessingTimesCalculator(ScheduleConfig config)
     {
 
         private int[][][] SPTMatrixes = new int[config.DevicesCount][][];
 
-        public int[][][] Calculate(in List<Batch> schedule)
+        public int[][][] Calculate(in BatchesSchedule schedule)
         {
             for (int device = 0; device < config.DevicesCount; device++)
             {
-                SPTMatrixes[device] = new int[schedule.Count][];
-                for (int batch = 0; batch < schedule.Count; batch++)
+                SPTMatrixes[device] = new int[schedule.Size][];
+                for (int batch = 0; batch < schedule.Size; batch++)
                 {
-                    SPTMatrixes[device][batch] = new int[schedule[batch].Size];
+                    SPTMatrixes[device][batch] = new int[schedule.SizeOf(batch)];
                 }
             }
 
@@ -30,38 +30,38 @@ namespace ScheduleOptimizationSystem
             return SPTMatrixes;
         }
 
-        private void CalcT_01(List<Batch> schedule)
+        private void CalcT_01(BatchesSchedule schedule)
         {
             int device = 0, batch = 0, job = 0;
 
             int[][] firstDeviceSPTMatrix = SPTMatrixes[0];
 
             // Устанавливаем момент начала времени выполнения 1 задания в 1 пакете на 1 приборе, как наладку
-            firstDeviceSPTMatrix[batch][job] = config.ChangeoverDurations[device][schedule[batch].Type, schedule[batch].Type];
+            firstDeviceSPTMatrix[batch][job] = config.ChangeoverDurations[device][schedule.TypeOf(batch), schedule.TypeOf(batch)];
 
-            for (job = 1; job < schedule[batch].Size; job++)
+            for (job = 1; job < schedule.SizeOf(batch); job++)
             {
-                firstDeviceSPTMatrix[batch][job] = JobCompletionTime(device, batch, job - 1, schedule[batch].Type);
+                firstDeviceSPTMatrix[batch][job] = JobCompletionTime(device, batch, job - 1, schedule.TypeOf(batch));
             }
 
 
             // Пробегаемся по всем возможным позициям cо второго пакета
-            for (batch = 1; batch < schedule.Count; batch++)
+            for (batch = 1; batch < schedule.Size; batch++)
             {
                 job = 0;
 
                 // Момент начала времени выполнения 1 задания в пакете на позиции batch
-                firstDeviceSPTMatrix[batch][job] = JobCompletionTime(device, batch - 1, schedule[batch - 1].Size - 1, schedule[batch - 1].Type)
-                    + config.ChangeoverDurations[device][schedule[batch - 1].Type, schedule[batch].Type];
+                firstDeviceSPTMatrix[batch][job] = JobCompletionTime(device, batch - 1, schedule.SizeOf(batch - 1) - 1, schedule.TypeOf(batch - 1))
+                    + config.ChangeoverDurations[device][schedule.TypeOf(batch - 1), schedule.TypeOf(batch)];
 
-                for (job = 1; job < schedule[batch].Size; job++)
+                for (job = 1; job < schedule.SizeOf(batch); job++)
                 {
-                    firstDeviceSPTMatrix[batch][job] = JobCompletionTime(device, batch, job - 1, schedule[batch].Type);
+                    firstDeviceSPTMatrix[batch][job] = JobCompletionTime(device, batch, job - 1, schedule.TypeOf(batch));
                 }
             }
         }
 
-        private void CalcT_0N(int device, List<Batch> schedule)
+        private void CalcT_0N(int device, BatchesSchedule schedule)
         {
             int batch = 0, job = 0;
             int[][] deviceSPTMatrix = SPTMatrixes[device];
@@ -72,24 +72,24 @@ namespace ScheduleOptimizationSystem
             deviceSPTMatrix[batch][job] = Math.Max(
 
                 // Время наладки прибора на выполнение 1 задания в 1 пакете
-                config.ChangeoverDurations[device][schedule[batch].Type, schedule[batch].Type],
+                config.ChangeoverDurations[device][schedule.TypeOf(batch), schedule.TypeOf(batch)],
 
                 // Время окончания выполнения 1 задания в 1 пакете на предыдущем приборе
-                JobCompletionTime(device - 1, batch, job, schedule[batch].Type)
+                JobCompletionTime(device - 1, batch, job, schedule.TypeOf(batch))
             );
 
             // Пробегаемся по всем возможным заданиям пакета в позиции batchIndex
-            for (job = 1; job < schedule[batch].Size; job++)
+            for (job = 1; job < schedule.SizeOf(batch); job++)
 
                 // Устанавливаем момент начала времени выполнения текущего задания job, как
                 // Максимум, между временем окончания предыдущего задания на текущем приборе и
                 // временем окончания текущего задания на предыдущем приборе
                 deviceSPTMatrix[batch][job] = Math.Max(
-                    JobCompletionTime(device, batch, job - 1, schedule[batch].Type),
-                    JobCompletionTime(device - 1, batch, job, schedule[batch].Type)
+                    JobCompletionTime(device, batch, job - 1, schedule.TypeOf(batch)),
+                    JobCompletionTime(device - 1, batch, job, schedule.TypeOf(batch))
                 );
 
-            for (batch = 1; batch < schedule.Count; batch++)
+            for (batch = 1; batch < schedule.Size; batch++)
             {
                 job = 0;
 
@@ -97,19 +97,19 @@ namespace ScheduleOptimizationSystem
                 // как Максимум, между временем окончания выполнения последнего задания в предыдущем пакете вместе с переналадкой 
                 // и временем окончания выполнения 1 задания в пакете на в batch на предыдущем приборе
                 deviceSPTMatrix[batch][job] = Math.Max(
-                    JobCompletionTime(device, batch - 1, schedule[batch - 1].Size - 1, schedule[batch - 1].Type) + config.ChangeoverDurations[device][schedule[batch - 1].Type, schedule[batch].Type],
-                    JobCompletionTime(device - 1, batch, job, schedule[batch].Type)
+                    JobCompletionTime(device, batch - 1, schedule.SizeOf(batch - 1) - 1, schedule.TypeOf(batch - 1)) + config.ChangeoverDurations[device][schedule.TypeOf(batch - 1), schedule.TypeOf(batch)],
+                    JobCompletionTime(device - 1, batch, job, schedule.TypeOf(batch))
                 );
 
                 // Пробегаемся по всем возможным заданиям пакета в позиции batch
-                for (job = 1; job < schedule[batch].Size; job++)
+                for (job = 1; job < schedule.SizeOf(batch); job++)
 
                     // Устанавливаем момент начала времени выполнения текущего задания job, как
                     // Максимум, между временем окончания предыдущего задания на текущем приборе и
                     // временем окончания текущего задания на предыдущем приборе
                     deviceSPTMatrix[batch][job] = Math.Max(
-                        JobCompletionTime(device, batch, job - 1, schedule[batch].Type),
-                        JobCompletionTime(device - 1, batch, job, schedule[batch].Type)
+                        JobCompletionTime(device, batch, job - 1, schedule.TypeOf(batch)),
+                        JobCompletionTime(device - 1, batch, job, schedule.TypeOf(batch))
                     );
             }
         }
