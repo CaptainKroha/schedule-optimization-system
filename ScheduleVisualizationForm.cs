@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace ScheduleOptimizationSystem
 {
-    internal partial class ScheduleVisualizationForm : Form
+    public partial class ScheduleVisualizationForm : Form
     {
 
         private ScheduleDto _schedule;

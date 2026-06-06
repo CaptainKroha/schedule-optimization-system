@@ -90,39 +90,6 @@ namespace ScheduleOptimizationSystem
             }
         }
 
-        private void BuildTestSchedule()
-        {
-            _scheduleDto = [];
-            _scheduleDto.MakeSpan = 33;
-            _scheduleDto.Add([]);
-            _scheduleDto[0].Add(new("T1", 0, 2));
-            _scheduleDto[0].Add(new("T1", 2, 2));
-            _scheduleDto[0].Add(new("T1", 4, 2));
-            _scheduleDto[0].Add(new("T2", 9, 2));
-            _scheduleDto[0].Add(new("T2", 11, 2));
-            _scheduleDto[0].Add(new("T3", 18, 1));
-            _scheduleDto[0].Add(new("T3", 19, 1));
-            _scheduleDto[0].Add(new("T3", 20, 1));
-            _scheduleDto.Add([]);
-            _scheduleDto[1].Add(new("T1", 6, 1));
-            _scheduleDto[1].Add(new("T1", 7, 1));
-            _scheduleDto[1].Add(new("T1", 8, 1));
-            _scheduleDto[1].Add(new("T2", 13, 3));
-            _scheduleDto[1].Add(new("T2", 16, 3));
-            _scheduleDto[1].Add(new("T3", 20, 2));
-            _scheduleDto[1].Add(new("T3", 22, 2));
-            _scheduleDto[1].Add(new("T3", 24, 2));
-            _scheduleDto.Add([]);
-            _scheduleDto[2].Add(new("T1", 9, 2));
-            _scheduleDto[2].Add(new("T1", 11, 2));
-            _scheduleDto[2].Add(new("T1", 13, 2));
-            _scheduleDto[2].Add(new("T2", 16, 2));
-            _scheduleDto[2].Add(new("T2", 19, 2));
-            _scheduleDto[2].Add(new("T3", 24, 3));
-            _scheduleDto[2].Add(new("T3", 27, 3));
-            _scheduleDto[2].Add(new("T3", 30, 3));
-        }
-
         private int JobsCountInOrderType(int orderType)
         {
             int result = 0;
